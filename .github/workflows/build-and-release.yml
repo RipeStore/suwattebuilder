@@ -161,7 +161,8 @@ jobs:
           echo "🔄 Resolving Swift Package Manager dependencies..."
           xcodebuild -resolvePackageDependencies \
             -scheme "Suwatte (iOS)" \
-            -project ./Suwatte.xcodeproj
+            -project ./Suwatte.xcodeproj \
+            -disableAutomaticPackageResolution
           echo "✅ SPM dependencies resolved"
 
       # ─── Build unsigned .app ───
@@ -176,6 +177,7 @@ jobs:
             -configuration Release \
             -destination "generic/platform=iOS" \
             -derivedDataPath "$PWD/build" \
+            -disableAutomaticPackageResolution \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
