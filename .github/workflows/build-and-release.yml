@@ -272,22 +272,25 @@ jobs:
 
           echo "🚀 Publishing Release '$TAG'..."
 
+          COMMIT_MSG=$(gh api "repos/Suwatte/Suwatte/commits/$COMMIT_SHA" --jq '.commit.message // empty' 2>/dev/null || true)
           RELEASE_TITLE="Suwatte v${APP_VERSION} (${SHORT_SHA})"
 
-          cat > release_notes.md << EOF
-          ## Suwatte v${APP_VERSION}
+          if [ -n "$COMMIT_MSG" ]; then
+            cat > release_notes.md << EOF
+$COMMIT_MSG
 
-          **Source:** [Suwatte/Suwatte@\`${SHORT_SHA}\`](https://github.com/Suwatte/Suwatte/commit/${COMMIT_SHA})
-          **Branch:** \`${BRANCH}\`
+---
+**Branch:** \`${BRANCH}\`
 
-          Built from upstream commit [\`${SHORT_SHA}\`](https://github.com/Suwatte/Suwatte/commit/${COMMIT_SHA}) on the \`${BRANCH}\` branch.
+Built from upstream commit [\`${SHORT_SHA}\`](https://github.com/Suwatte/Suwatte/commit/${COMMIT_SHA}) on the \`${BRANCH}\` branch.
+EOF
+          else
+            cat > release_notes.md << EOF
+**Branch:** \`${BRANCH}\`
 
-          ### Unsigned IPA
-          This is an unsigned IPA. To install, use a signing service such as AltStore, Sideloadly, or TrollStore.
-          EOF
-
-          # Clean up leading whitespace from heredoc indentation
-          sed -i 's/^          //' release_notes.md
+Built from upstream commit [\`${SHORT_SHA}\`](https://github.com/Suwatte/Suwatte/commit/${COMMIT_SHA}) on the \`${BRANCH}\` branch.
+EOF
+          fi
 
           gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes 2>/dev/null || true
 
